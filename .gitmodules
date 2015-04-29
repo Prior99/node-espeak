@@ -1,0 +1,3 @@
+[submodule "deps/espeak"]
+	path = deps/espeak
+	url = https://github.com/rhdunn/espeak.git
