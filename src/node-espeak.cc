@@ -1,66 +1,70 @@
 #include <v8.h>
-#include <node.h>
-#include <node_buffer.h>
-#include <node_object_wrap.h>
 #include <nan.h>
-#include <string.h>
-#include <iostream>
 
 #include "../deps/espeak/src/speak_lib.h"
 
 using namespace node;
 using namespace v8;
 
-class ESpeak : public ObjectWrap {
-	private:
-		static Persistent<Function> constructor;
-	public:
-		ESpeak() {
-			espeak_Initialize(AUDIO_OUTPUT_PLAYBACK, 0, NULL, 0);
+static int samplerate;
+static NanCallback *callback;
+static bool hasInit = false;
+static bool hasCallback;
+static unsigned int flags;
+
+static int SynthCallback(short *wav, int numSamples, espeak_EVENT *events) {
+	while(events->type != 0) {
+		if(events->type == espeakEVENT_SAMPLERATE) {
+			samplerate = events->id.number;
 		}
-
-		static NAN_METHOD(Speak) {
-			NanScope();
-			std::cout << "Hello" << std::endl;
-			char text[32] = {"1. Labas. Šauk. Laikas. Taika"};
-			unsigned int size = 0;
-			espeak_SetVoiceByName("mb-lt1");
-			while(text[size]!='\0') size++;
-			unsigned int flags=espeakCHARS_AUTO | espeakENDPAUSE;
-			espeak_Synth(text, size+1, 0,POS_CHARACTER,0, flags, NULL, NULL);
-			espeak_Synchronize();
-			NanReturnUndefined();
+		events++;
+	}
+	if(numSamples > 0) {
+		if(hasCallback) {
+			const unsigned argc = 3;
+			Local<Object> buffer = NanNewBufferHandle(reinterpret_cast<char*>(wav), numSamples*2);
+			Local<Value> argv[argc] = { buffer, NanNew<Number>(numSamples), NanNew<Number>(samplerate) };
+			callback->Call(argc, argv);
 		}
-
-		~ESpeak() {
-			espeak_Synchronize();
-		}
-
-		static void Init(Handle<Object> exports) {
-			Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
-			tpl->SetClassName(NanNew("ESpeak"));
-			tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
-			NODE_SET_PROTOTYPE_METHOD(tpl, "speak", Speak);
-
-			exports->Set(NanNew("ESpeak"), tpl->GetFunction());
-		}
-
-		static NAN_METHOD(New) {
-			NanScope();
-			if(args.IsConstructCall()) {
-				ESpeak* espeak = new ESpeak();
-				espeak->Wrap(args.This());
-				NanReturnValue(args.This());
-			}
-			else {
-				NanReturnUndefined();
-			}
-		}
-};
-
-void InitESpeak(Handle<Object> exports) {
-	ESpeak::Init(exports);
+	}
+	return 0;
 }
 
-NODE_MODULE(node_espeak, InitESpeak)
+static NAN_METHOD(Initialize) {
+	NanScope();
+	flags = espeakCHARS_AUTO | espeakENDPAUSE;
+	hasInit = true;
+	espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS, 0, NULL, 0);
+	espeak_SetSynthCallback(SynthCallback);
+	espeak_SetVoiceByName("mb-lt1");
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(Speak) {
+	NanScope();
+	if(!hasInit) {
+		NanThrowError("ESpeak was not initialized but speak() was called. Did you forget to call initialize()?");
+	}
+	else {
+		NanUtf8String str(args[0]);
+		char *text = *str;
+		espeak_Synth(text, str.length(), 0,POS_CHARACTER,0, flags, NULL, NULL);
+		espeak_Synchronize();
+	}
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(OnVoice) {
+	NanScope();
+	callback = new NanCallback(args[0].As<Function>());
+	hasCallback = true;
+	NanReturnUndefined();
+}
+
+static void InitESpeak(Handle<Object> exports) {
+	exports->Set(NanNew("initialize"), NanNew<FunctionTemplate>(Initialize)->GetFunction());
+	exports->Set(NanNew("speak"), NanNew<FunctionTemplate>(Speak)->GetFunction());
+	exports->Set(NanNew("onVoice"), NanNew<FunctionTemplate>(OnVoice)->GetFunction());
+}
+
+NODE_MODULE(node_espeak, InitESpeak);

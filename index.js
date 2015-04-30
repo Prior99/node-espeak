@@ -1,2 +1,2 @@
 var binding = require('bindings')('node-espeak');
-module.exports = binding.ESpeak;
+module.exports = binding;
