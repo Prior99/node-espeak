@@ -17,10 +17,13 @@ function genderToNumber(gender) {
 }
 
 module.exports = {
-	initialize : function(options) {
+	initialize : function(voice, properties) {
 		ESpeak.initialize();
-		if(options !== undefined) {
-			this.setVoice(options);
+		if(voice !== undefined) {
+			this.setVoice(voice);
+		}
+		if(properties !== undefined) {
+			this.setProperties(properties);
 		}
 	},
 	setVoice : function(voice) {
