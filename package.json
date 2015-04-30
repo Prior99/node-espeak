@@ -1,7 +1,7 @@
 {
   "name": "node-espeak",
-  "version": "0.0.0",
-  "description": "eSpeak for mumble",
+  "version": "0.1.0",
+  "description": "eSpeak for node",
   "main": "index.js",
   "author": "Frederick Gnodtke",
   "license": "GPL",
@@ -12,9 +12,6 @@
     "type": "git",
     "url": "https://git.cronosx.de/prior/node-espeak.git"
   },
-  "cpu": [
-    "x64"
-  ],
   "keywords": [
     "node",
     "espeak"
