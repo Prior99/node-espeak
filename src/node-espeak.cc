@@ -1,5 +1,11 @@
 #include <v8.h>
 #include <nan.h>
+#include <stdlib.h>
+#include <iostream>
+
+#define gender_none 0
+#define gender_male 1
+#define gender_female 2
 
 #include "../deps/espeak/src/speak_lib.h"
 
@@ -11,6 +17,11 @@ static NanCallback *callback;
 static bool hasInit = false;
 static bool hasCallback;
 static unsigned int flags;
+
+static char variant = 0;
+static char *language = "en\0";
+static char gender = gender_none;
+static char age = 30;
 
 static int SynthCallback(short *wav, int numSamples, espeak_EVENT *events) {
 	while(events->type != 0) {
@@ -28,6 +39,66 @@ static int SynthCallback(short *wav, int numSamples, espeak_EVENT *events) {
 		}
 	}
 	return 0;
+}
+
+static void reloadVoice() {
+	espeak_VOICE *voice = new espeak_VOICE();
+	voice->gender = gender;
+	voice->age = age;
+	voice->variant = variant;
+	voice->languages = language;
+	espeak_SetVoiceByProperties(voice);
+}
+
+static NAN_METHOD(GetVoice) {
+	NanScope();
+	Local<Object> obj = NanNew<Object>();
+	if(gender == gender_none) {
+		obj->Set(NanNew("gender"), NanNew("none"));
+	}
+	else if(gender == gender_male) {
+		obj->Set(NanNew("gender"), NanNew("male"));
+	}
+	else if(gender == gender_female) {
+		obj->Set(NanNew("gender"), NanNew("female"));
+	}
+	obj->Set(NanNew("variant"), NanNew(variant));
+	obj->Set(NanNew("age"), NanNew(age));
+	obj->Set(NanNew("language"), NanNew(std::string(language)));
+	NanReturnValue(obj);
+}
+
+static NAN_METHOD(SetGender) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	gender = (char)num;
+	reloadVoice();
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetAge) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	age = (char)num;
+	reloadVoice();
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetVariant) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	variant = (char)num;
+	reloadVoice();
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetLanguage) {
+	NanScope();
+	NanUtf8String str(args[0]);
+	language = new char[strlen(*str) + 1];
+	strcpy(language, *str);
+	reloadVoice();
+	NanReturnUndefined();
 }
 
 static NAN_METHOD(Initialize) {
@@ -65,6 +136,13 @@ static void InitESpeak(Handle<Object> exports) {
 	exports->Set(NanNew("initialize"), NanNew<FunctionTemplate>(Initialize)->GetFunction());
 	exports->Set(NanNew("speak"), NanNew<FunctionTemplate>(Speak)->GetFunction());
 	exports->Set(NanNew("onVoice"), NanNew<FunctionTemplate>(OnVoice)->GetFunction());
+
+	exports->Set(NanNew("setAge"), NanNew<FunctionTemplate>(SetAge)->GetFunction());
+	exports->Set(NanNew("setGender"), NanNew<FunctionTemplate>(SetGender)->GetFunction());
+	exports->Set(NanNew("setLanguage"), NanNew<FunctionTemplate>(SetLanguage)->GetFunction());
+	exports->Set(NanNew("setVariant"), NanNew<FunctionTemplate>(SetVariant)->GetFunction());
+
+	exports->Set(NanNew("getVoice"), NanNew<FunctionTemplate>(GetVoice)->GetFunction());
 }
 
 NODE_MODULE(node_espeak, InitESpeak);
