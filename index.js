@@ -43,18 +43,38 @@ module.exports = {
 			throw new TypeError("Set the voice via a name or an object containing it's properties.");
 		}
 	},
-	setAge : function(age) {
-		ESpeak.setAge(age);
+	setProperties : function(prop) {
+		if(typeof prop === "object") {
+			if(prop.rate !== undefined) {
+				this.setRate(prop.rate);
+			}
+			if(prop.volume !== undefined) {
+				this.setVolume(prop.volume);
+			}
+			if(prop.range !== undefined) {
+				this.setRange(prop.range);
+			}
+			if(prop.gap !== undefined) {
+				this.setGap(prop.gap);
+			}
+			if(prop.pitch !== undefined) {
+				this.setPitch(prop.pitch);
+			}
+		}
+		else {
+			throw new TypeError("Set the voices properties using an object.");
+		}
 	},
-	setGender : function(gender) {
-		ESpeak.setGender(genderToNumber(gender));
-	},
-	setLanguage : function(lang) {
-		ESpeak.setLanguage(lang);
-	},
-	setVariant : function(variant) {
-		ESpeak.setVariant(variant);
-	},
+	setRate : ESpeak.setRate,
+	setVolume : ESpeak.setVolume,
+	setRange : ESpeak.setRange,
+	setGap : ESpeak.setGap,
+	setPitch : ESpeak.setPitch,
+	setAge : ESpeak.setAge,
+	setGender : ESpeak.setGender,
+	setLanguage : ESpeak.setLanguage,
+	setVariant : ESpeak.setVariant,
+	getProperties : ESpeak.getProperties,
 	getVoice : ESpeak.getVoice,
 	onVoice : ESpeak.onVoice,
 	speak : ESpeak.speak

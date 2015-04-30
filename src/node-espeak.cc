@@ -68,6 +68,17 @@ static NAN_METHOD(GetVoice) {
 	NanReturnValue(obj);
 }
 
+static NAN_METHOD(GetProperties) {
+	NanScope();
+	Local<Object> obj = NanNew<Object>();
+	obj->Set(NanNew("pitch"), NanNew(espeak_GetParameter(espeakPITCH, 1)));
+	obj->Set(NanNew("rate"), NanNew(espeak_GetParameter(espeakRATE, 1)));
+	obj->Set(NanNew("volume"), NanNew(espeak_GetParameter(espeakVOLUME, 1)));
+	obj->Set(NanNew("gap"), NanNew(espeak_GetParameter(espeakWORDGAP, 1)));
+	obj->Set(NanNew("range"), NanNew(espeak_GetParameter(espeakRANGE, 1)));
+	NanReturnValue(obj);
+}
+
 static NAN_METHOD(SetGender) {
 	NanScope();
 	double num = args[0]->NumberValue();
@@ -89,6 +100,66 @@ static NAN_METHOD(SetVariant) {
 	double num = args[0]->NumberValue();
 	variant = (char)num;
 	reloadVoice();
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetRate) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	if(num < 80 || num > 450) {
+		NanThrowTypeError("Invalid rate. Valid values are integers in range 80 to 450.");
+	}
+	else {
+		espeak_SetParameter(espeakRATE, (int) num, 0);
+	}
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetVolume) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	if(num < 0) {
+		NanThrowTypeError("Invalid volume. Valid values are integers greater than 0. Integer bigger than 200 are not recommended.");
+	}
+	else {
+		espeak_SetParameter(espeakVOLUME, (int) num, 0);
+	}
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetPitch) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	if(num < 0 || num > 100) {
+		NanThrowTypeError("Invalid pitch. Valid values are integer between 0 and 100. Default is 50.");
+	}
+	else {
+		espeak_SetParameter(espeakPITCH, (int) num, 0);
+	}
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetRange) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	if(num < 0 || num > 100) {
+		NanThrowTypeError("Invalid range. Valid values are integers between 0 and 100. Default is 50.");
+	}
+	else {
+		espeak_SetParameter(espeakRANGE, (int) num, 0);
+	}
+	NanReturnUndefined();
+}
+
+static NAN_METHOD(SetGap) {
+	NanScope();
+	double num = args[0]->NumberValue();
+	if(num < 0) {
+		NanThrowTypeError("Invalid gap. Valid values are integers greater than 0.");
+	}
+	else {
+		espeak_SetParameter(espeakWORDGAP, (int) num, 0);
+	}
 	NanReturnUndefined();
 }
 
@@ -142,6 +213,13 @@ static void InitESpeak(Handle<Object> exports) {
 	exports->Set(NanNew("setLanguage"), NanNew<FunctionTemplate>(SetLanguage)->GetFunction());
 	exports->Set(NanNew("setVariant"), NanNew<FunctionTemplate>(SetVariant)->GetFunction());
 
+	exports->Set(NanNew("setPitch"), NanNew<FunctionTemplate>(SetPitch)->GetFunction());
+	exports->Set(NanNew("setRange"), NanNew<FunctionTemplate>(SetRange)->GetFunction());
+	exports->Set(NanNew("setRate"), NanNew<FunctionTemplate>(SetRate)->GetFunction());
+	exports->Set(NanNew("setVolume"), NanNew<FunctionTemplate>(SetVolume)->GetFunction());
+	exports->Set(NanNew("setGap"), NanNew<FunctionTemplate>(SetGap)->GetFunction());
+
+	exports->Set(NanNew("getProperties"), NanNew<FunctionTemplate>(GetProperties)->GetFunction());
 	exports->Set(NanNew("getVoice"), NanNew<FunctionTemplate>(GetVoice)->GetFunction());
 }
 
