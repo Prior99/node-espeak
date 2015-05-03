@@ -176,7 +176,13 @@ static NAN_METHOD(Initialize) {
 	NanScope();
 	flags = espeakCHARS_AUTO | espeakENDPAUSE;
 	hasInit = true;
-	espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS, 0, NULL, 0);
+	if(!args[0]->IsUndefined()) {
+		NanAsciiString path(args[0]);
+		espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS, 0, *path, 0);
+	}
+	else {
+		espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS, 0, NULL, 0);
+	}
 	espeak_SetSynthCallback(SynthCallback);
 	espeak_SetVoiceByName("mb-lt1");
 	NanReturnUndefined();

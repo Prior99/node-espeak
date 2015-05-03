@@ -17,8 +17,8 @@ function genderToNumber(gender) {
 }
 
 module.exports = {
-	initialize : function(voice, properties) {
-		ESpeak.initialize();
+	initialize : function(voice, properties, espeakData) {
+		ESpeak.initialize(espeakData);
 		if(voice !== undefined) {
 			this.setVoice(voice);
 		}
@@ -68,13 +68,15 @@ module.exports = {
 			throw new TypeError("Set the voices properties using an object.");
 		}
 	},
+	setGender : function(gender) {
+		ESpeak.setGender(genderToNumber(gender));
+	},
 	setRate : ESpeak.setRate,
 	setVolume : ESpeak.setVolume,
 	setRange : ESpeak.setRange,
 	setGap : ESpeak.setGap,
 	setPitch : ESpeak.setPitch,
 	setAge : ESpeak.setAge,
-	setGender : ESpeak.setGender,
 	setLanguage : ESpeak.setLanguage,
 	setVariant : ESpeak.setVariant,
 	getProperties : ESpeak.getProperties,
