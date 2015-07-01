@@ -24,7 +24,7 @@
     "nan": "~1.6.2"
   },
   "scripts" : {
-    "preinstall" : "git submodule init && git submodule update",
+    "preinstall" : "git clone https://github.com/rhdunn/espeak.git deps/espeak",
     "install" : "node-gyp rebuild"
   }
 }
