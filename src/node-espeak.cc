@@ -209,6 +209,12 @@ static NAN_METHOD(OnVoice) {
 	NanReturnUndefined();
 }
 
+static NAN_METHOD(Cancel) {
+	NanScope();
+	espeak_Cancel();
+	NanReturnUndefined();
+}
+
 static void InitESpeak(Handle<Object> exports) {
 	exports->Set(NanNew("initialize"), NanNew<FunctionTemplate>(Initialize)->GetFunction());
 	exports->Set(NanNew("speak"), NanNew<FunctionTemplate>(Speak)->GetFunction());
@@ -224,6 +230,8 @@ static void InitESpeak(Handle<Object> exports) {
 	exports->Set(NanNew("setRate"), NanNew<FunctionTemplate>(SetRate)->GetFunction());
 	exports->Set(NanNew("setVolume"), NanNew<FunctionTemplate>(SetVolume)->GetFunction());
 	exports->Set(NanNew("setGap"), NanNew<FunctionTemplate>(SetGap)->GetFunction());
+
+	exports->Set(NanNew("cancel"), NanNew<FunctionTemplate>(Cancel)->GetFunction());
 
 	exports->Set(NanNew("getProperties"), NanNew<FunctionTemplate>(GetProperties)->GetFunction());
 	exports->Set(NanNew("getVoice"), NanNew<FunctionTemplate>(GetVoice)->GetFunction());

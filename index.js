@@ -71,6 +71,7 @@ module.exports = {
 	setGender : function(gender) {
 		ESpeak.setGender(genderToNumber(gender));
 	},
+	cancel : ESpeak.cancel,
 	setRate : ESpeak.setRate,
 	setVolume : ESpeak.setVolume,
 	setRange : ESpeak.setRange,
