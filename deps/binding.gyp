@@ -15,10 +15,10 @@
 			"target_name" : "espeak",
 			"type" : "static_library",
 			"cflags" : [
-				"-Wall",
 				"-Wno-unused-parameter",
 				"-Wno-missing-field-initializers",
-				"-Wextra"
+				"-Wextra",
+				"-Wno-narrowing"
 			],
 			"include_dirs": [
 				"<!(node -e \"require('nan')\")"

@@ -24,7 +24,7 @@
     "nan": "^2.1.0"
   },
   "scripts": {
-    "preinstall": "git clone https://github.com/rhdunn/espeak.git deps/espeak",
+    "preinstall": "rm -Rf deps/espeak; git clone --branch 1.48.15 https://github.com/rhdunn/espeak.git deps/espeak",
     "install": "node-gyp rebuild"
   }
 }
