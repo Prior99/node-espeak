@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "bindings": "~1.2.1",
-    "nan": "~1.6.2"
+    "nan": "^2.1.0"
   },
-  "scripts" : {
-    "preinstall" : "git clone https://github.com/rhdunn/espeak.git deps/espeak",
-    "install" : "node-gyp rebuild"
+  "scripts": {
+    "preinstall": "git clone https://github.com/rhdunn/espeak.git deps/espeak",
+    "install": "node-gyp rebuild"
   }
 }

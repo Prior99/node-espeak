@@ -6,7 +6,6 @@
 				"deps/binding.gyp:espeak"
 			],
 			"cflags" : [
-				"-Wall",
 				"-Wno-unused-parameter",
 				"-Wno-missing-field-initializers",
 				"-Wextra"
