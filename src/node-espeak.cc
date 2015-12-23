@@ -33,7 +33,8 @@ static int SynthCallback(short *wav, int numSamples, espeak_EVENT *events) {
 	if(numSamples > 0) {
 		if(hasCallback) {
 			const unsigned argc = 3;
-			Local<Object> buffer = Nan::NewBuffer(reinterpret_cast<char*>(wav), numSamples*2).ToLocalChecked();
+			Local<Object> buffer = Nan::CopyBuffer(reinterpret_cast<char*>(wav), numSamples*2).ToLocalChecked();
+			//Local<Object> buffer = Nan::NewBuffer(0).ToLocalChecked();
 			Local<Value> argv[argc] = { buffer, Nan::New<Number>(numSamples), Nan::New<Number>(samplerate) };
 			callback->Call(argc, argv);
 		}
